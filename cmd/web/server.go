@@ -16,8 +16,8 @@ func (w web) InitializeRoutes(s services.ProductLeadboard) {
 	})
 }
 
-func New(s server.Server) web {
-	return web{
+func New(s server.Server) *web {
+	return &web{
 		server: s,
 	}
 }
