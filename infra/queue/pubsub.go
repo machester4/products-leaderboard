@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+	"fmt"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -12,10 +13,16 @@ type pubsubQueue struct {
 
 var _ Queue = (*pubsubQueue)(nil)
 
-func (p pubsubQueue) Consume(ctx context.Context, topic string, handler Handler) {
-	sub := p.client.Subscription(topic)
+func (p pubsubQueue) Consume(ctx context.Context, id string, handler Handler) {
+	sub := p.client.Subscription(id)
 	sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-		handler(ctx, string(msg.Data))
+		err := handler(ctx, string(msg.Data))
+		if err != nil {
+			fmt.Printf("Error handling message: %v", err)
+			msg.Nack()
+			return
+		}
+		fmt.Println("Message handled successfully")
 		msg.Ack()
 	})
 }
