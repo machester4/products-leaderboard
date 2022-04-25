@@ -7,7 +7,7 @@ type ServerConfig struct {
 }
 
 func NewServerConfigFromEnv() ServerConfig {
-	port := ":8080"
+	port := ":9090"
 	if portEnv := os.Getenv("PORT"); portEnv != "" {
 		port = portEnv
 	}

@@ -23,7 +23,7 @@ spec:
         - name: leaderboard
           image: gcr.io/PROJECT_ID/IMAGE:TAG
           ports:
-            - containerPort: 8080
+            - containerPort: 9090
           volumeMounts:
             - name: google-cloud-key
               mountPath: /var/secrets/google

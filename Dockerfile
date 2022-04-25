@@ -12,5 +12,5 @@ RUN apk add make && make build
 FROM alpine
 WORKDIR /go/src/
 COPY --from=build /go/src /go/src
-EXPOSE 8080
+EXPOSE 9090
 CMD ./service

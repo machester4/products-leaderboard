@@ -5,5 +5,5 @@ import (
 )
 
 func handleHealthCheck(ctx server.Context) error {
-	return ctx.SendString("OK")
+	return ctx.SendString("ok")
 }
