@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"os/signal"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/go-redis/redis/v8"
@@ -50,7 +52,12 @@ func main() {
 	service := services.NewProductLeadboard(repo)
 
 	// Initialize messaging
-	messaging.New(queue).ConsumeIncrementScore(service)
+	consumer := messaging.New(queue)
+
+	// Consume messages
+	go func(s services.ProductLeadboard) {
+		consumer.ConsumeIncrementScore(service)
+	}(service)
 
 	// Create fiber server
 	fiber := server.NewFiberServer()
@@ -59,7 +66,14 @@ func main() {
 	web.New(fiber).InitializeRoutes(service)
 
 	// Start server
-	if err := fiber.Listen(config.Server.Port); err != nil {
-		panic(err)
-	}
+	go func(port string) {
+		if err := fiber.Listen(port); err != nil {
+			panic(err)
+		}
+	}(config.Server.Port)
+
+	// wait for interrupt signal to gracefully shutdown the server
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
 }
