@@ -11,7 +11,7 @@ type web struct {
 
 func (w web) InitializeRoutes(s services.ProductLeadboard) {
 	w.server.Get("/leaderboards", handleHealthCheck)
-	w.server.Get("/leaderboards/stats", func(ctx server.Context) error {
+	w.server.Get("/leaderboards/products", func(ctx server.Context) error {
 		return handleGetTopProducts(ctx, s)
 	})
 }
