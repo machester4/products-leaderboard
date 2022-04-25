@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaderboard-deployment
+  labels:
+    app: leaderboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: leaderboard
+  template:
+    metadata:
+      name: leaderboard
+      labels:
+        app: leaderboard
+    spec:
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: pubsub-key
+      containers:
+        - name: leaderboard
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /var/secrets/google
+          env:
+            - name: PUBSUB_PROJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: pubsub
+                  key: PROJECTID
+            - name: REDISHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: redishost
+                  key: REDISHOST
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
