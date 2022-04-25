@@ -1,56 +1,49 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
-
-	"cloud.google.com/go/pubsub"
-	"github.com/go-redis/redis/v8"
-	"github.com/machester4/products-leaderboard/cmd/messaging"
-	"github.com/machester4/products-leaderboard/configs"
-	"github.com/machester4/products-leaderboard/infra/data/repositories"
-	"github.com/machester4/products-leaderboard/infra/queue"
-	"github.com/machester4/products-leaderboard/internal/application/services"
+	"os"
+	"os/signal"
 )
 
 func main() {
-	config := configs.Config{
-		Redis:  configs.NewRedisConfigFromEnv(),
-		PubSub: configs.NewPubSubConfigFromEnv(),
-		Server: configs.NewServerConfigFromEnv(),
-	}
+	// config := configs.Config{
+	// 	Redis:  configs.NewRedisConfigFromEnv(),
+	// 	PubSub: configs.NewPubSubConfigFromEnv(),
+	// 	Server: configs.NewServerConfigFromEnv(),
+	// }
 
-	// create redis client
-	client := redis.NewClient(&redis.Options{
-		Addr: config.Redis.Host,
-	})
+	// // create redis client
+	// client := redis.NewClient(&redis.Options{
+	// 	Addr: config.Redis.Host,
+	// })
 
-	// ping redis
-	_, err := client.Ping(context.Background()).Result()
-	if err != nil {
-		panic(err)
-	}
-	defer client.Close()
+	// // ping redis
+	// _, err := client.Ping(context.Background()).Result()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer client.Close()
 
-	// create pubsub client
-	psc, err := pubsub.NewClient(context.Background(), config.PubSub.ProjectID)
-	if err != nil {
-		panic(err)
-	}
-	defer psc.Close()
+	// // create pubsub client
+	// psc, err := pubsub.NewClient(context.Background(), config.PubSub.ProjectID)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer psc.Close()
 
-	// Create queue
-	queue := queue.NewPubsubQueue(psc)
+	// // Create queue
+	// queue := queue.NewPubsubQueue(psc)
 
-	// create repository
-	repo := repositories.NewProductLeadBoardRedis(client)
+	// // create repository
+	// repo := repositories.NewProductLeadBoardRedis(client)
 
-	// create service
-	service := services.NewProductLeadboard(repo)
+	// // create service
+	// service := services.NewProductLeadboard(repo)
 
-	// Initialize messaging
-	messaging.New(queue).ConsumeIncrementScore(service)
+	// // Initialize messaging
+	// messaging.New(queue).ConsumeIncrementScore(service)
 
 	// Create fiber server
 	//fiber := server.NewFiberServer()
@@ -67,5 +60,14 @@ func main() {
 		w.Write([]byte("Hello World"))
 	})
 	fmt.Println("Server starting...")
-	http.ListenAndServe(":8080", nil)
+	go func() {
+		if err := http.ListenAndServe(":8080", nil); err != nil {
+			panic(err)
+		}
+	}()
+
+	// wait for interrupt signal to gracefully shutdown the server
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
 }
