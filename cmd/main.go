@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"cloud.google.com/go/pubsub"
@@ -65,4 +66,6 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World"))
 	})
+	fmt.Println("Server starting...")
+	http.ListenAndServe(":8080", nil)
 }
