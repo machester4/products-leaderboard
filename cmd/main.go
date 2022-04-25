@@ -2,15 +2,14 @@ package main
 
 import (
 	"context"
+	"net/http"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/go-redis/redis/v8"
 	"github.com/machester4/products-leaderboard/cmd/messaging"
-	"github.com/machester4/products-leaderboard/cmd/web"
 	"github.com/machester4/products-leaderboard/configs"
 	"github.com/machester4/products-leaderboard/infra/data/repositories"
 	"github.com/machester4/products-leaderboard/infra/queue"
-	"github.com/machester4/products-leaderboard/infra/server"
 	"github.com/machester4/products-leaderboard/internal/application/services"
 )
 
@@ -53,13 +52,17 @@ func main() {
 	messaging.New(queue).ConsumeIncrementScore(service)
 
 	// Create fiber server
-	fiber := server.NewFiberServer()
+	//fiber := server.NewFiberServer()
 
 	// Initialize web
-	web.New(fiber).InitializeRoutes(service)
+	//web.New(fiber).InitializeRoutes(service)
 
 	// Start server
-	if err := fiber.Listen(config.Server.Port); err != nil {
-		panic(err)
-	}
+	// if err := fiber.Listen(config.Server.Port); err != nil {
+	// 	panic(err)
+	// }
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello World"))
+	})
 }
