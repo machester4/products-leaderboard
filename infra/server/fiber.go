@@ -61,7 +61,7 @@ func (f fiberServer) Listen(port string) error {
 	return f.app.Listen(port)
 }
 
-func NewFiberServer() Server {
+func NewFiberServer() *fiberServer {
 	return &fiberServer{
 		app: fiber.New(),
 	}
