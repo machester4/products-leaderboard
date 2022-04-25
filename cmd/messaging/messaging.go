@@ -12,7 +12,7 @@ type messaging struct {
 }
 
 func (m messaging) ConsumeIncrementScore(s services.ProductLeadboard) {
-	m.q.Consume(context.Background(), "increment-score", func(ctx context.Context, msg interface{}) {
+	m.q.Consume(context.Background(), "voucher-metric", func(ctx context.Context, msg interface{}) {
 		s.IncrementScore(ctx, msg.(string))
 	})
 }
